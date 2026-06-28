@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  
+  --color-gold-bright: #f0b90b;
+  --color-panel-dark: #0a0a0c;
+  --color-panel-light: #121214;
+  --color-brand-black: #121214;
+  --color-brand-gold: #f59e0b;
+  --color-brand-orange: #fb923c;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-black text-white antialiased font-sans;
+  }
+}
+
+.scan-line {
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--color-brand-orange), transparent);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  animation: scan 3s linear infinite;
+  box-shadow: 0 0 15px var(--color-brand-orange);
+}
+
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(251, 146, 60, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251, 146, 60, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glass-panel {
+  @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl rounded-2xl;
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.4);
+}
+
+.gold-glow {
+  box-shadow: 0 0 20px rgba(251, 146, 60, 0.2);
+}
+
+.subtle-glow {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+.lgbt-gradient-border {
+  background: linear-gradient(#121214, #121214) padding-box,
+              linear-gradient(to right, #ff0000, #ff8700, #ffd300, #deff0a, #a1ff0a, #0aff99, #0aefff, #147df5, #580aff, #be0aff) border-box;
+  border: 2px solid transparent;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+}
+
+.logo-container img {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-rainbow {
+  background-size: 200% 200%;
+  animation: rainbow 5s ease infinite;
+}
+
+/* ==========================================================================
+   Light Theme Config & Overrides
+   ========================================================================== */
+
+/* Change default scrollbar and background in light mode */
+.light-theme {
+  --color-brand-black: #fafafa;
+  --color-panel-dark: #f1f5f9;
+  --color-panel-light: #ffffff;
+}
+
+body.light-theme {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+/* Header, navigation panels and glass-panels in light mode */
+.light-theme .glass-panel {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-theme .subtle-glow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+}
+
+.light-theme .grid-bg {
+  background-image: 
+    linear-gradient(rgba(251, 146, 60, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251, 146, 60, 0.04) 1px, transparent 1px) !important;
+}
+
+/* Backgound classes adaptation */
+.light-theme .bg-brand-black {
+  background-color: #f8fafc !important;
+}
+
+.light-theme .bg-brand-black\/80 {
+  background-color: rgba(248, 250, 252, 0.85) !important;
+}
+
+.light-theme .bg-brand-black\/50 {
+  background-color: rgba(248, 250, 252, 0.6) !important;
+}
+
+.light-theme .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+
+.light-theme .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+.light-theme .hover\:bg-white\/5:hover {
+  background-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+.light-theme .hover\:bg-white\/10:hover {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Border adaptations */
+.light-theme .border-white\/5 {
+  border-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+.light-theme .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+.light-theme .border-white\/20 {
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Base text color overrides for light mode elements */
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6,
+.light-theme p,
+.light-theme li,
+.light-theme span:not(.bg-rose-500, .bg-emerald-500, .bg-blue-500, .bg-brand-orange, .text-emerald-400, .text-rose-400, .text-blue-400),
+.light-theme div:not(.bg-rose-500, .bg-rose-600, .bg-brand-orange, .bg-blue-500, .bg-emerald-500, .bg-brand-gold, .scan-line) {
+  color: #1e293b;
+}
+
+/* Protect white text on solid colored accents from changing to dark slate */
+.light-theme .text-white:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *, .bg-rose-500, .bg-emerald-500, .bg-blue-500, .bg-indigo-500, .bg-rose-600, .bg-brand-orange, .bg-rose-500\/10 *, .bg-rose-500\/10) {
+  color: #1e293b !important;
+}
+
+.light-theme .text-white\/90:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+
+.light-theme .text-white\/80:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.8) !important;
+}
+
+.light-theme .text-white\/70:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.72) !important;
+}
+
+.light-theme .text-white\/60:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.65) !important;
+}
+
+.light-theme .text-white\/40:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+.light-theme .text-white\/30:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.38) !important;
+}
+
+.light-theme .text-white\/20:not(.bg-rose-500 *, .bg-emerald-500 *, .bg-blue-500 *, .bg-indigo-500 *, .bg-rose-600 *, .bg-brand-orange *) {
+  color: rgba(15, 23, 42, 0.28) !important;
+}
+
+/* Input/Select improvements for readability in light mode */
+.light-theme input,
+.light-theme select {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #1e293b !important;
+}
+
+.light-theme input:focus,
+.light-theme select:focus {
+  border-color: var(--color-brand-orange) !important;
+}
+
+.light-theme input::placeholder {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Prose/Markdown colors */
+.light-theme .prose {
+  color: #1e293b !important;
+}
+
+.light-theme .prose h1,
+.light-theme .prose h2,
+.light-theme .prose h3,
+.light-theme .prose h4,
+.light-theme .prose strong {
+  color: #0f172a !important;
+}
+
+/* Colored section headers and accents */
+.light-theme .border-brand-gold\/10,
+.light-theme .border-brand-orange\/10 {
+  border-color: rgba(251, 146, 60, 0.2) !important;
+}
+
+.light-theme .bg-brand-gold\/5,
+.light-theme .bg-brand-orange\/5 {
+  background-color: rgba(251, 146, 60, 0.06) !important;
+}
+
+.light-theme .bg-brand-gold\/10,
+.light-theme .bg-brand-orange\/10 {
+  background-color: rgba(251, 146, 60, 0.08) !important;
+}
+
+.light-theme .text-brand-gold {
+  color: #ea580c !important; /* higher contrast warm orange/gold for light mode text readability */
+}
+
+.light-theme .text-brand-orange {
+  color: #e04f00 !important; /* high contrast deep orange */
+}
+
+.light-theme .bg-brand-gold\/20,
+.light-theme .bg-brand-orange\/20 {
+  background-color: rgba(251, 146, 60, 0.15) !important;
+}
+
+/* Birth chart empty boxes adaptation */
+.light-theme .bg-white\/\[0\.02\] {
+  background-color: rgba(15, 23, 42, 0.02) !important;
+}
+
+.light-theme .text-white\/10 {
+  color: rgba(15, 23, 42, 0.15) !important;
+}
+
+
