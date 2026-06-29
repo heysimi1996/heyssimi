@@ -5,6 +5,7 @@ import { CompatibilityResult as CompatibilityResultType } from '../types';
 import Markdown from 'react-markdown';
 import { Logo } from './Logo';
 import { triggerVibration } from '../lib/vibration';
+import { AudioNarrator } from './AudioNarrator';
 
 interface Props {
   result: CompatibilityResultType;
@@ -94,28 +95,38 @@ export function CompatibilityResult({ result, onReset }: Props) {
           <motion.div 
             initial={{ x: -20, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
-            className="glass-panel p-8 border-emerald-500/10 bg-emerald-500/[0.01]"
+            className="glass-panel p-8 border-emerald-500/10 bg-emerald-500/[0.01] flex flex-col justify-between"
           >
-            <div className="flex items-center gap-3 mb-6">
-               <ShieldCheck className="w-6 h-6 text-emerald-500" />
-               <h2 className="text-xl font-display font-bold text-white uppercase">Sự Tương Hợp</h2>
-            </div>
-            <div className="prose prose-invert max-w-none text-white">
-              <Markdown>{result.aiInterpretation.compatibilityAnalysis}</Markdown>
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+                <div className="flex items-center gap-3">
+                   <ShieldCheck className="w-6 h-6 text-emerald-500" />
+                   <h2 className="text-xl font-display font-bold text-white uppercase">Sự Tương Hợp</h2>
+                </div>
+                <AudioNarrator text={result.aiInterpretation.compatibilityAnalysis} title="Nghe luận tương hợp" />
+              </div>
+              <div className="prose prose-invert max-w-none text-white">
+                <Markdown>{result.aiInterpretation.compatibilityAnalysis}</Markdown>
+              </div>
             </div>
           </motion.div>
 
           <motion.div 
             initial={{ x: 20, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
-            className="glass-panel p-8 border-rose-500/10 bg-rose-500/[0.01]"
+            className="glass-panel p-8 border-rose-500/10 bg-rose-500/[0.01] flex flex-col justify-between"
           >
-            <div className="flex items-center gap-3 mb-6">
-               <AlertTriangle className="w-6 h-6 text-rose-500" />
-               <h2 className="text-xl font-display font-bold text-white uppercase">Xung Khắc Cần Lưu Ý</h2>
-            </div>
-            <div className="prose prose-invert max-w-none text-white">
-              <Markdown>{result.aiInterpretation.conflicts}</Markdown>
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+                <div className="flex items-center gap-3">
+                   <AlertTriangle className="w-6 h-6 text-rose-500" />
+                   <h2 className="text-xl font-display font-bold text-white uppercase">Xung Khắc Cần Lưu Ý</h2>
+                </div>
+                <AudioNarrator text={result.aiInterpretation.conflicts} title="Nghe luận xung khắc" />
+              </div>
+              <div className="prose prose-invert max-w-none text-white">
+                <Markdown>{result.aiInterpretation.conflicts}</Markdown>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -126,9 +137,12 @@ export function CompatibilityResult({ result, onReset }: Props) {
           whileInView={{ y: 0, opacity: 1 }}
           className="glass-panel p-8 border-brand-gold/10 bg-brand-gold/[0.02]"
         >
-          <div className="flex items-center gap-3 mb-6">
-             <Lightbulb className="w-6 h-6 text-brand-orange" />
-             <h2 className="text-xl font-display font-bold text-white uppercase">Giải Pháp & Hóa Giải</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+            <div className="flex items-center gap-3">
+               <Lightbulb className="w-6 h-6 text-brand-orange" />
+               <h2 className="text-xl font-display font-bold text-white uppercase">Giải Pháp & Hóa Giải</h2>
+            </div>
+            <AudioNarrator text={result.aiInterpretation.solutions} title="Nghe giải pháp hóa giải" />
           </div>
           <div className="prose prose-invert max-w-none text-white">
             <Markdown>{result.aiInterpretation.solutions}</Markdown>
@@ -159,10 +173,12 @@ export function CompatibilityResult({ result, onReset }: Props) {
         </div>
 
         {/* SEO Block */}
-        <div className="mt-20 pt-20 border-t border-white/5 opacity-[0.03] text-[10px] space-y-4">
-           <h3>Xem ngày lành tháng tốt cho hôn nhân</h3>
-           <p>Kết quả đối chiếu tuổi vợ chồng dựa trên các phép tính mệnh hỏa mệnh thủy. Xem chi tiết lục xung, lục hại và cách hóa giải để cuộc sống gia đình ấm êm, hạnh phúc.</p>
-           {Array(30).fill("Cách chọn hướng nhà hợp tuổi vợ chồng để kích hoạt tài lộc và bình an.").join(" ")}
+        <div className="mt-20 pt-10 border-t border-white/5 text-[10px] space-y-4 text-white/80">
+           <h3 className="text-xs font-display font-bold text-brand-orange uppercase tracking-wider">Xem ngày lành tháng tốt cho hôn nhân</h3>
+           <p className="leading-relaxed font-light">Kết quả đối chiếu tuổi vợ chồng dựa trên các phép tính mệnh hỏa mệnh thủy. Xem chi tiết lục xung, lục hại và cách hóa giải để cuộc sống gia đình ấm êm, hạnh phúc.</p>
+           <p className="text-white/50 leading-relaxed font-light">
+             {Array(30).fill("Cách chọn hướng nhà hợp tuổi vợ chồng để kích hoạt tài lộc và bình an.").join(" ")}
+           </p>
         </div>
       </div>
     </div>

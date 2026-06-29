@@ -9,6 +9,10 @@ export interface UserInput {
     forehead: string;
     eyes: string;
     mouth: string;
+    contour?: string;
+    jawline?: string;
+    cheekbones?: string;
+    scannedSummary?: string;
   };
 }
 

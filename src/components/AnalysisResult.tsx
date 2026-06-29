@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { AnalysisResult as AnalysisResultType, Arrow } from '../types';
+import { AudioNarrator } from './AudioNarrator';
 import { 
   Trophy, 
   Heart, 
@@ -147,17 +148,22 @@ export function AnalysisResult({ result, onReset }: Props) {
             >
               {activeTab === 'overview' && (
                 <div className="space-y-6">
-                  <SectionTitle title="Luận Giải Tổng Quan Vận Mệnh" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Luận Giải Tổng Quan Vận Mệnh" />
+                    <AudioNarrator text={result.aiInterpretation.overview} title="Nghe sư thầy luận vận mệnh" />
+                  </div>
                   <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap">
                     {result.aiInterpretation.overview}
                   </div>
-
                 </div>
               )}
 
               {activeTab === 'inner' && (
                 <div className="space-y-6">
-                  <SectionTitle title="Năng Lượng Nội Tại & Tử Huyệt" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Năng Lượng Nội Tại & Tử Huyệt" />
+                    <AudioNarrator text={result.aiInterpretation.innerEnergy} title="Nghe sư thầy luận năng lượng nội tại" />
+                  </div>
                   <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap">
                     {result.aiInterpretation.innerEnergy}
                   </div>
@@ -186,7 +192,10 @@ export function AnalysisResult({ result, onReset }: Props) {
                     </div>
                   </div>
                   
-                  <SectionTitle title="Tương Tác Bản Mệnh & Thần Số" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Tương Tác Bản Mệnh & Thần Số" />
+                    <AudioNarrator text={result.aiInterpretation.elementAnalysis || result.numerology.elementData.description} title="Nghe sư thầy luận bản mệnh" />
+                  </div>
                   <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap">
                     {result.aiInterpretation.elementAnalysis || result.numerology.elementData.description}
                   </div>
@@ -226,8 +235,11 @@ export function AnalysisResult({ result, onReset }: Props) {
 
               {activeTab === 'forecast' && (
                 <div className="space-y-8">
-                  <SectionTitle title="Vận Trình Tương Lai" />
-                  <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap whitespace-pre-wrap">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Vận Trình Tương Lai" />
+                    <AudioNarrator text={result.aiInterpretation.futureForecast} title="Nghe sư thầy luận tương lai" />
+                  </div>
+                  <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap">
                     {result.aiInterpretation.futureForecast}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
@@ -253,7 +265,10 @@ export function AnalysisResult({ result, onReset }: Props) {
 
               {activeTab === 'face' && (
                 <div className="space-y-6">
-                  <SectionTitle title="Nhân Tướng Học AI" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Nhân Tướng Học AI" />
+                    <AudioNarrator text={result.aiInterpretation.faceAnalysis} title="Nghe sư thầy phán nhân tướng" />
+                  </div>
                   <div className="prose prose-invert max-w-none text-white leading-relaxed whitespace-pre-wrap">
                     {result.aiInterpretation.faceAnalysis}
                   </div>
@@ -262,7 +277,10 @@ export function AnalysisResult({ result, onReset }: Props) {
 
               {activeTab === 'fengshui' && (
                 <div className="space-y-8">
-                  <SectionTitle title="Phong Thủy Cải Vận" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4 mb-2">
+                    <SectionTitle title="Phong Thủy Cải Vận" />
+                    <AudioNarrator text={result.aiInterpretation.fengShui.advice} title="Nghe sư thầy khuyên giải cải vận" />
+                  </div>
                   <div className="p-6 bg-white/5 rounded-2xl border border-brand-gold/10 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                       <Compass className="w-20 h-20 text-brand-gold" />

@@ -207,10 +207,12 @@ export function CompatibilityForm({ onAnalyze }: Props) {
         </motion.button>
       </div>
 
-      <div className="mt-20 opacity-[0.03] text-xs max-w-4xl mx-auto space-y-4 pointer-events-none">
-        <h2>Xem tuổi vợ chồng hợp khắc năm 2026</h2>
-        <p>Phân tích chi tiết mức độ hòa hợp giữa hai người dựa trên các yếu tố phong thủy cổ truyền kết hợp thuật toán AI hiện đại. Chúng tôi xem xét Ngũ hành, Thiên can, Địa chi và Thần số học Pythagoras để đưa ra lời khuyên chính xác nhất về tình duyên và sự nghiệp khi hai người kết hợp.</p>
-        {Array(10).fill("Cách hóa giải tuyệt mệnh trong hôn nhân bằng hướng nhà và màu sắc phong thủy.").join(" ")}
+      <div className="mt-20 glass-panel p-6 text-xs max-w-4xl mx-auto space-y-4 rounded-2xl border border-white/10 text-white/80">
+        <h2 className="text-sm font-display font-bold text-brand-orange uppercase tracking-wider">Xem tuổi vợ chồng hợp khắc năm 2026</h2>
+        <p className="leading-relaxed font-light">Phân tích chi tiết mức độ hòa hợp giữa hai người dựa trên các yếu tố phong thủy cổ truyền kết hợp thuật toán AI hiện đại. Chúng tôi xem xét Ngũ hành, Thiên can, Địa chi và Thần số học Pythagoras để đưa ra lời khuyên chính xác nhất về tình duyên và sự nghiệp khi hai người kết hợp.</p>
+        <p className="text-white/50 leading-relaxed font-light">
+          {Array(10).fill("Cách hóa giải tuyệt mệnh trong hôn nhân bằng hướng nhà và màu sắc phong thủy.").join(" ")}
+        </p>
       </div>
     </div>
   );
