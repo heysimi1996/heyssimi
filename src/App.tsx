@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { UserInput, AnalysisResult as AnalysisResultType, CompatibilityResult as CompatibilityResultType } from './types';
 import { InputForm } from './components/InputForm';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -18,6 +19,7 @@ import {
 import { interpretNumerology, interpretCompatibility } from './lib/gemini';
 import { User, Users, Heart, Sun, Moon } from 'lucide-react';
 import { Logo } from './components/Logo';
+import { triggerVibration } from './lib/vibration';
 
 export default function App() {
   const [loading, setLoading] = React.useState(false);
@@ -117,7 +119,10 @@ export default function App() {
       {/* Theme Toggle Button */}
       <div className="fixed top-4 right-4 md:top-8 md:right-8 z-50">
         <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => {
+            triggerVibration(30);
+            setTheme(theme === 'dark' ? 'light' : 'dark');
+          }}
           className="p-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all subtle-glow cursor-pointer flex items-center justify-center shadow-lg hover:scale-110 active:scale-95"
           title={theme === 'dark' ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
         >
@@ -144,32 +149,53 @@ export default function App() {
               </div>
 
               <nav className="flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/5 subtle-glow">
-                <button 
-                  onClick={() => setMode('single')}
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    triggerVibration(30);
+                    setMode('single');
+                  }}
                   className={`flex items-center gap-2 px-8 py-3 rounded-xl transition-all ${mode === 'single' ? 'bg-brand-orange text-black gold-glow' : 'text-white/60 hover:bg-white/5'}`}
                 >
                   <User className="w-4 h-4" /> Cá Nhân
-                </button>
-                <button 
-                  onClick={() => setMode('compatibility')}
+                </motion.button>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    triggerVibration(30);
+                    setMode('compatibility');
+                  }}
                   className={`flex items-center gap-2 px-8 py-3 rounded-xl transition-all ${mode === 'compatibility' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'text-white/60 hover:bg-white/5'}`}
                 >
                   <Heart className="w-4 h-4" /> Hợp Tuổi
-                </button>
+                </motion.button>
               </nav>
             </div>
           </header>
 
           <main className="flex-1 flex flex-col justify-center py-12">
-            {mode === 'single' ? (
-              <InputForm onStart={startAnalysis} />
-            ) : (
-              <CompatibilityForm onAnalyze={startCompatibilityAnalysis} />
-            )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="w-full"
+              >
+                {mode === 'single' ? (
+                  <InputForm onStart={startAnalysis} />
+                ) : (
+                  <CompatibilityForm onAnalyze={startCompatibilityAnalysis} />
+                )}
+              </motion.div>
+            </AnimatePresence>
           </main>
           
           <footer className="py-8 text-center border-t border-white/5 bg-brand-black/50 backdrop-blur-sm relative z-10">
-            <p className="text-white/20 text-xs tracking-widest uppercase">AI Thần Số Học © 2024 • Powered by AI Deep Numerology</p>
+            <p className="text-white/20 text-xs tracking-widest uppercase">AI Thần Số Học © 2026 • Powered by AI Deep Numerology</p>
           </footer>
         </div>
       )}

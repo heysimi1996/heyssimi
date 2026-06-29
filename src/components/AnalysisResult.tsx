@@ -22,6 +22,7 @@ import {
   Sparkles as SparklesIcon
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { triggerVibration } from '../lib/vibration';
 
 const Trees = (props: any) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 10v.01"/><path d="M14 10v.01"/><path d="M10 14v.01"/><path d="M14 14v.01"/><path d="M16 8c.6 0 1.1.2 1.4.5.3.3.6.8.6 1.5 0 .2 0 .4-.1.6-.3.5-.7.8-1.5.9-.2 0-.4 0-.6-.1-.1 0-.2 0-.3-.1-.5 0-.9-.2-1.1-.4-.1-.1-.3-.3-.3-.4 0-.1-.1-.2-.1-.4-.1-.3-.1-.6-.1-1.1 0-1.1.9-2 2-2z"/><path d="M18 10c.6 0 1.1.2 1.4.5.3.3.6.8.6 1.5 0 .2 0 .4-.1.6-.3.5-.7.8-1.5.9-.2 0-.4 0-.6-.1-.1 0-.2 0-.3-.1-.5 0-.9-.2-1.1-.4-.1-.1-.3-.3-.3-.4 0-.1-.1-.2-.1-.4-.1-.3-.1-.6-.1-1.1 0-1.1.9-2 2-2z"/><path d="M14 6c.6 0 1.1.2 1.4.5.3.3.6.8.6 1.5 0 .2 0 .4-.1.6-.3.5-.7.8-1.5.9-.2 0-.4 0-.6-.1-.1 0-.2 0-.3-.1-.5 0-.9-.2-1.1-.4-.1-.1-.3-.3-.3-.4 0-.1-.1-.2-.1-.4-.1-.3-.1-.6-.1-1.1 0-1.1.9-2 2-2z"/><path d="M10 6c.6 0 1.1.2 1.4.5.3.3.6.8.6 1.5 0 .2 0 .4-.1.6-.3.5-.7.8-1.5.9-.2 0-.4 0-.6-.1-.1 0-.2 0-.3-.1-.5 0-.9-.2-1.1-.4-.1-.1-.3-.3-.3-.4 0-.1-.1-.2-.1-.4-.1-.3-.1-.6-.1-1.1 0-1.1.9-2 2-2z"/><path d="M12 22v-3"/><path d="M9 19c0-3.5 1.3-6.4 3-6.4s3 2.9 3 6.4H9z"/></svg>
@@ -73,13 +74,18 @@ export function AnalysisResult({ result, onReset }: Props) {
               <h2 className="text-white font-display font-medium text-xs leading-tight uppercase tracking-widest">{result.input.fullName}</h2>
               <p className="text-white/40 text-[10px]">{result.input.birthDate} • {result.input.gender}</p>
             </div>
-            <button 
-              onClick={onReset}
-              className="group flex items-center gap-3 px-5 py-2.5 bg-white/5 rounded-full hover:bg-white/10 text-white transition-all border border-white/10 subtle-glow active:scale-95"
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                triggerVibration(40);
+                onReset();
+              }}
+              className="group flex items-center gap-3 px-5 py-2.5 bg-white/5 rounded-full hover:bg-white/10 text-white transition-all border border-white/10 subtle-glow active:scale-95 cursor-pointer"
             >
               <RefreshCcw className="w-4 h-4 transition-transform group-hover:rotate-180" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-display font-bold">Phân tích mới</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -101,20 +107,34 @@ export function AnalysisResult({ result, onReset }: Props) {
           {/* Main Content Area */}
           <div className="flex-1 space-y-8">
             {/* Tabs Navigation */}
-            <div className="flex overflow-x-auto gap-2 p-1 bg-white/5 rounded-2xl no-scrollbar scroll-smooth">
+            <div className="flex overflow-x-auto gap-2 p-1 bg-white/5 rounded-2xl no-scrollbar scroll-smooth relative z-10">
               {tabs.map(tab => (
-                <button
+                <motion.button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl whitespace-nowrap transition-all duration-300 ${
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    triggerVibration(25);
+                    setActiveTab(tab.id as any);
+                  }}
+                  className={`relative flex items-center gap-2 px-6 py-3 rounded-xl whitespace-nowrap transition-all duration-300 cursor-pointer ${
                     activeTab === tab.id 
-                      ? 'bg-brand-gold text-black shadow-lg shadow-brand-gold/20' 
+                      ? 'text-black font-semibold' 
                       : 'text-white/40 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="font-display font-medium text-sm tracking-wide uppercase">{tab.label}</span>
-                </button>
+                  {activeTab === tab.id && (
+                    <motion.div 
+                      layoutId="activeTabPill"
+                      className="absolute inset-0 bg-brand-gold rounded-xl shadow-lg shadow-brand-gold/20"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <tab.icon className="w-4 h-4" />
+                    <span className="font-display font-medium text-sm tracking-wide uppercase">{tab.label}</span>
+                  </span>
+                </motion.button>
               ))}
             </div>
 

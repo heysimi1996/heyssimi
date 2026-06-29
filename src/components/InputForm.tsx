@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UserInput, Gender } from '../types';
 import { Calendar, User, Clock, ChevronRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Logo } from './Logo';
+import { triggerVibration } from '../lib/vibration';
 
 interface Props {
   onStart: (data: UserInput) => void;
@@ -27,6 +28,7 @@ export function InputForm({ onStart }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    triggerVibration(60);
     onStart(formData);
   };
 
@@ -100,7 +102,10 @@ export function InputForm({ onStart }: Props) {
                     <button
                       key={g}
                       type="button"
-                      onClick={() => setFormData({ ...formData, gender: g })}
+                      onClick={() => {
+                        triggerVibration(25);
+                        setFormData({ ...formData, gender: g });
+                      }}
                       className={`flex-1 min-w-[80px] py-3 rounded-xl border transition-all relative overflow-hidden ${
                         formData.gender === g 
                           ? g === 'LGBT+' 
@@ -119,13 +124,18 @@ export function InputForm({ onStart }: Props) {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="button"
-              onClick={nextStep}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                triggerVibration(40);
+                nextStep();
+              }}
               className="w-full bg-brand-orange py-5 rounded-2xl text-black font-display font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl gold-glow"
             >
               Tiếp tục <ChevronRight className="w-5 h-5" />
-            </button>
+            </motion.button>
           </motion.form>
         ) : (
           <motion.form 
@@ -191,19 +201,27 @@ export function InputForm({ onStart }: Props) {
             </div>
 
             <div className="flex gap-4">
-              <button
+              <motion.button
                 type="button"
-                onClick={prevStep}
-                className="flex-1 bg-white/5 border border-white/10 py-5 rounded-2xl text-white font-display uppercase tracking-widest hover:bg-white/10 transition-all subtle-glow"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  triggerVibration(30);
+                  prevStep();
+                }}
+                className="flex-1 bg-white/5 border border-white/10 py-5 rounded-2xl text-white font-display uppercase tracking-widest hover:bg-white/10 transition-all subtle-glow cursor-pointer"
               >
                 Quay lại
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="submit"
-                className="flex-[2] bg-brand-gold py-5 rounded-2xl text-black font-display font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl gold-glow"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => triggerVibration(60)}
+                className="flex-[2] bg-brand-gold py-5 rounded-2xl text-black font-display font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl gold-glow cursor-pointer"
               >
                 Bắt đầu phân tích <CheckCircle2 className="w-5 h-5" />
-              </button>
+              </motion.button>
             </div>
           </motion.form>
         )}

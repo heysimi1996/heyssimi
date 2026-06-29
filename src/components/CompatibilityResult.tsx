@@ -4,6 +4,7 @@ import { Heart, ShieldCheck, AlertTriangle, Lightbulb, RefreshCcw, Share2, Star 
 import { CompatibilityResult as CompatibilityResultType } from '../types';
 import Markdown from 'react-markdown';
 import { Logo } from './Logo';
+import { triggerVibration } from '../lib/vibration';
 
 interface Props {
   result: CompatibilityResultType;
@@ -136,15 +137,25 @@ export function CompatibilityResult({ result, onReset }: Props) {
 
         {/* Bottom Actions */}
         <div className="flex justify-center gap-4">
-          <button 
-            onClick={onReset}
-            className="flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 rounded-xl text-white transition-all"
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              triggerVibration(40);
+              onReset();
+            }}
+            className="flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 rounded-xl text-white transition-all cursor-pointer"
           >
             <RefreshCcw className="w-5 h-5" /> Trở Lại
-          </button>
-          <button className="flex items-center gap-2 px-8 py-4 bg-brand-orange text-black font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-brand-orange/20">
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => triggerVibration(30)}
+            className="flex items-center gap-2 px-8 py-4 bg-brand-orange text-black font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-brand-orange/20 cursor-pointer"
+          >
             <Share2 className="w-5 h-5" /> Lưu & Chia Sẻ
-          </button>
+          </motion.button>
         </div>
 
         {/* SEO Block */}

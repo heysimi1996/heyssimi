@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { User, Heart, Sparkles, Calendar, Clock } from 'lucide-react';
 import { UserInput, Gender } from '../types';
+import { triggerVibration } from '../lib/vibration';
 
 interface Props {
   onAnalyze: (p1: UserInput, p2: UserInput) => void;
@@ -30,7 +31,10 @@ export function CompatibilityForm({ onAnalyze }: Props) {
         <button
           key={g}
           type="button"
-          onClick={() => setPerson({ ...person, gender: g })}
+          onClick={() => {
+            triggerVibration(25);
+            setPerson({ ...person, gender: g });
+          }}
           className={`flex-1 py-2 text-xs rounded-lg border transition-all relative overflow-hidden ${
             person.gender === g 
               ? g === 'LGBT+' 
@@ -189,17 +193,22 @@ export function CompatibilityForm({ onAnalyze }: Props) {
       </div>
 
       <div className="mt-12 text-center">
-        <button
-          onClick={() => onAnalyze(person1, person2)}
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            triggerVibration(60);
+            onAnalyze(person1, person2);
+          }}
           disabled={!person1.fullName || !person2.fullName || !person1.birthDate || !person2.birthDate}
-          className="px-12 py-5 bg-gradient-to-r from-blue-600 to-rose-600 text-white rounded-2xl font-display font-bold text-lg shadow-2xl shadow-rose-500/20 hover:scale-105 active:scale-95 transition-all subtle-glow disabled:opacity-50 disabled:pointer-events-none"
+          className="px-12 py-5 bg-gradient-to-r from-blue-600 to-rose-600 text-white rounded-2xl font-display font-bold text-lg shadow-2xl shadow-rose-500/20 hover:scale-105 active:scale-95 transition-all subtle-glow disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
         >
           Phân Tích Sự Xung Khắc & Tương Hợp
-        </button>
+        </motion.button>
       </div>
 
       <div className="mt-20 opacity-[0.03] text-xs max-w-4xl mx-auto space-y-4 pointer-events-none">
-        <h2>Xem tuổi vợ chồng hợp khắc năm 2024</h2>
+        <h2>Xem tuổi vợ chồng hợp khắc năm 2026</h2>
         <p>Phân tích chi tiết mức độ hòa hợp giữa hai người dựa trên các yếu tố phong thủy cổ truyền kết hợp thuật toán AI hiện đại. Chúng tôi xem xét Ngũ hành, Thiên can, Địa chi và Thần số học Pythagoras để đưa ra lời khuyên chính xác nhất về tình duyên và sự nghiệp khi hai người kết hợp.</p>
         {Array(10).fill("Cách hóa giải tuyệt mệnh trong hôn nhân bằng hướng nhà và màu sắc phong thủy.").join(" ")}
       </div>
