@@ -52,6 +52,8 @@ export interface CompatibilityInput {
 
 export interface CompatibilityResult {
   score: number;
+  person1: UserInput;
+  person2: UserInput;
   person1Data: NumerologyData;
   person2Data: NumerologyData;
   aiInterpretation: {

@@ -97,6 +97,8 @@ export default function App() {
 
       setCompResult({
         score: aiResult.score,
+        person1: p1,
+        person2: p2,
         person1Data: d1,
         person2Data: d2,
         aiInterpretation: aiResult

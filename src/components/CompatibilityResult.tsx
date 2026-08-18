@@ -1,18 +1,87 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Heart, ShieldCheck, AlertTriangle, Lightbulb, RefreshCcw, Share2, Star } from 'lucide-react';
+import { Heart, ShieldCheck, AlertTriangle, Lightbulb, RefreshCcw, Share2, Star, ChevronRight, Layers } from 'lucide-react';
 import { CompatibilityResult as CompatibilityResultType } from '../types';
 import Markdown from 'react-markdown';
 import { Logo } from './Logo';
 import { triggerVibration } from '../lib/vibration';
 import { AudioNarrator } from './AudioNarrator';
 
-interface Props {
-  result: CompatibilityResultType;
-  onReset: () => void;
+// Parse markdown table to structured layout
+function parseMarkdownTable(markdown: string) {
+  if (!markdown) return null;
+  const lines = markdown.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  // Find lines that have pipes
+  const tableLines = lines.filter(line => line.includes('|'));
+  if (tableLines.length < 3) return null;
+
+  const parseRow = (line: string) => {
+    let parts = line.split('|');
+    if (line.startsWith('|')) parts.shift();
+    if (line.endsWith('|')) parts.pop();
+    return parts.map(p => p.trim());
+  };
+
+  const headers = parseRow(tableLines[0]).map(h => h.replace(/\*\*|__/g, ''));
+  if (headers.length < 2) return null;
+
+  // Verify that the second line is indeed a separator line (contains dashes)
+  if (!tableLines[1].includes('-')) return null;
+
+  const rows: string[][] = [];
+  for (let i = 2; i < tableLines.length; i++) {
+    const line = tableLines[i];
+    if (!line.includes('|')) break; // End of table
+    const cells = parseRow(line);
+    if (cells.length >= headers.length) {
+      rows.push(cells.slice(0, headers.length));
+    } else {
+      const padded = [...cells];
+      while (padded.length < headers.length) padded.push('');
+      rows.push(padded);
+    }
+  }
+
+  if (headers.length > 0 && rows.length > 0) {
+    return { headers, rows };
+  }
+  return null;
 }
 
-export function CompatibilityResult({ result, onReset }: Props) {
+const getFallbackTable = (result: CompatibilityResultType) => {
+  const m1 = result.person1Data.elementData.element;
+  const m2 = result.person2Data.elementData.element;
+  
+  const lp1 = result.person1Data.lifePath;
+  const lp2 = result.person2Data.lifePath;
+  const lpEval = lp1 === lp2 ? 'Đồng điệu tuyệt vời (Cùng tần số số chủ đạo)' : 'Bổ trợ hoàn hảo (Cân bằng năng lượng cuộc sống)';
+
+  let elementEval = 'Năng lượng ngũ hành bình hòa';
+  if ((m1 === 'Hỏa' && m2 === 'Thủy') || (m1 === 'Thủy' && m2 === 'Hỏa')) elementEval = 'Tương khắc (Thủy khắc Hỏa) - Cần thấu cảm hóa giải';
+  if ((m1 === 'Hỏa' && m2 === 'Thổ') || (m1 === 'Thổ' && m2 === 'Hỏa')) elementEval = 'Tương sinh (Hỏa sinh Thổ) - Vun đắp cát tường';
+  if ((m1 === 'Thủy' && m2 === 'Mộc') || (m1 === 'Mộc' && m2 === 'Thủy')) elementEval = 'Tương sinh (Thủy sinh Mộc) - Cực kỳ thuận lợi';
+  if ((m1 === 'Kim' && m2 === 'Thủy') || (m1 === 'Thủy' && m2 === 'Kim')) elementEval = 'Tương sinh (Kim sinh Thủy) - Tương hợp bền vững';
+  if ((m1 === 'Mộc' && m2 === 'Hỏa') || (m1 === 'Hỏa' && m2 === 'Mộc')) elementEval = 'Tương sinh (Mộc sinh Hỏa) - May mắn hưng vượng';
+  if ((m1 === 'Thổ' && m2 === 'Kim') || (m1 === 'Kim' && m2 === 'Thổ')) elementEval = 'Tương sinh (Thổ sinh Kim) - Sung túc hòa hợp';
+  if ((m1 === 'Kim' && m2 === 'Mộc') || (m1 === 'Mộc' && m2 === 'Kim')) elementEval = 'Tương khắc (Kim khắc Mộc) - Tiết chế để thấu hiểu';
+  if ((m1 === 'Mộc' && m2 === 'Thổ') || (m1 === 'Thổ' && m2 === 'Mộc')) elementEval = 'Tương khắc (Mộc khắc Thổ) - Cần lắng nghe sẻ chia';
+  if ((m1 === 'Thổ' && m2 === 'Thủy') || (m1 === 'Thủy' && m2 === 'Thổ')) elementEval = 'Tương khắc (Thổ khắc Thủy) - Kiên nhẫn vượt rào cản';
+
+  return {
+    headers: ['Tiêu chí', result.person1.fullName, result.person2.fullName, 'Đánh giá chi tiết'],
+    rows: [
+      ['Số chủ đạo', String(lp1), String(lp2), lpEval],
+      ['Bản mệnh Ngũ hành', m1, m2, elementEval],
+      ['Năm Cá Nhân', String(result.person1Data.personalYear), String(result.person2Data.personalYear), 'Chu kỳ vận hành năng lượng'],
+      ['Chỉ số Sứ mệnh', String(result.person1Data.destiny), String(result.person2Data.destiny), 'Sự hòa quyện chí hướng tương lai']
+    ]
+  };
+};
+
+export function CompatibilityResult({ result, onReset }: { result: CompatibilityResultType; onReset: () => void }) {
+  const tableData = parseMarkdownTable(result.aiInterpretation.comparisonTable) || getFallbackTable(result);
+
   return (
     <div className="min-h-screen bg-brand-black pb-20">
       {/* Hero Header */}
@@ -60,14 +129,139 @@ export function CompatibilityResult({ result, onReset }: Props) {
         <motion.div 
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="glass-panel p-8"
+          className="glass-panel p-6 md:p-8 space-y-6"
         >
-          <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
-             <Star className="w-5 h-5 text-brand-orange" />
+          <div className="flex items-center gap-3 mb-2 border-b border-white/5 pb-4">
+             <Star className="w-5 h-5 text-brand-orange animate-pulse" />
              <h2 className="text-xl font-display font-bold text-white uppercase tracking-wider">Thông Số Đối Chiếu</h2>
           </div>
-          <div className="prose prose-invert max-w-none prose-sm lg:prose-base text-white">
-            <Markdown>{result.aiInterpretation.comparisonTable}</Markdown>
+          
+          <div className="space-y-4">
+            {/* Desktop Table Header */}
+            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/10 text-xs font-display uppercase tracking-widest text-white/50 font-bold">
+              <div className="col-span-3 flex items-center gap-2">
+                <Layers className="w-3.5 h-3.5 text-brand-gold" />
+                <span>{tableData.headers[0] || 'Tiêu chí'}</span>
+              </div>
+              <div className="col-span-3 text-center">{tableData.headers[1] || 'Người 1'}</div>
+              <div className="col-span-3 text-center">{tableData.headers[2] || 'Người 2'}</div>
+              <div className="col-span-3 text-right">Luận giải chi tiết</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="space-y-4">
+              {tableData.rows.map((row, idx) => {
+                const criteria = row[0] || '';
+                const p1Val = row[1] || '';
+                const p2Val = row[2] || '';
+                const evalText = row[3] || '';
+
+                const isGood = evalText.toLowerCase().includes('tốt') || 
+                               evalText.toLowerCase().includes('hợp') || 
+                               evalText.toLowerCase().includes('sinh') ||
+                               evalText.toLowerCase().includes('cát') ||
+                               evalText.toLowerCase().includes('vững');
+                const isWarning = evalText.toLowerCase().includes('khắc') || 
+                                  evalText.toLowerCase().includes('xung') || 
+                                  evalText.toLowerCase().includes('hại') || 
+                                  evalText.toLowerCase().includes('tử') || 
+                                  evalText.toLowerCase().includes('tuyệt');
+
+                const evalBadgeClass = isGood 
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                  : isWarning 
+                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                    : 'bg-brand-orange/10 border-brand-orange/20 text-brand-orange';
+
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-brand-gold/30 transition-all duration-300 p-5 md:p-6 shadow-md hover:shadow-xl"
+                  >
+                    {/* Ambient Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-orange/[0.01] to-brand-gold/[0.01] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                    {/* Desktop View */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 items-center relative z-10">
+                      {/* Criteria */}
+                      <div className="col-span-3 flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-brand-gold/40 rounded-full group-hover:bg-brand-gold group-hover:scale-y-110 transition-all duration-300" />
+                        <span className="font-display font-bold text-sm text-white/90 group-hover:text-white transition-colors">
+                          {criteria}
+                        </span>
+                      </div>
+
+                      {/* Person 1 Value */}
+                      <div className="col-span-3 text-center">
+                        <span className="inline-block px-4 py-2 rounded-xl bg-blue-500/5 border border-blue-500/10 text-blue-400 font-medium text-xs font-display">
+                          {p1Val}
+                        </span>
+                      </div>
+
+                      {/* Person 2 Value */}
+                      <div className="col-span-3 text-center">
+                        <span className="inline-block px-4 py-2 rounded-xl bg-rose-500/5 border border-rose-500/10 text-rose-400 font-medium text-xs font-display">
+                          {p2Val}
+                        </span>
+                      </div>
+
+                      {/* Evaluation Text */}
+                      <div className="col-span-3 text-right">
+                        <span className={`inline-block px-4 py-2 rounded-xl border text-xs font-semibold leading-relaxed text-left ${evalBadgeClass}`}>
+                          {evalText}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Mobile Card Layout */}
+                    <div className="md:hidden space-y-4 relative z-10">
+                      {/* Header: Criteria */}
+                      <div className="flex items-center gap-3 border-b border-white/5 pb-2">
+                        <div className="w-1.5 h-5 bg-brand-gold rounded-full" />
+                        <span className="font-display font-bold text-sm text-brand-gold uppercase tracking-wider">
+                          {criteria}
+                        </span>
+                      </div>
+
+                      {/* Side by side inputs */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-xl bg-blue-500/[0.03] border border-blue-500/10 flex flex-col items-center justify-center">
+                          <span className="text-[9px] uppercase tracking-widest text-blue-500/60 font-display font-medium mb-1">
+                            {tableData.headers[1] || 'Người 1'}
+                          </span>
+                          <span className="text-xs font-bold text-blue-400 text-center font-display">
+                            {p1Val}
+                          </span>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-rose-500/[0.03] border border-rose-500/10 flex flex-col items-center justify-center">
+                          <span className="text-[9px] uppercase tracking-widest text-rose-500/60 font-display font-medium mb-1">
+                            {tableData.headers[2] || 'Người 2'}
+                          </span>
+                          <span className="text-xs font-bold text-rose-400 text-center font-display">
+                            {p2Val}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Evaluation segment */}
+                      <div className={`p-4 rounded-xl border ${evalBadgeClass} flex flex-col gap-1.5`}>
+                        <span className="text-[9px] uppercase tracking-widest opacity-60 font-display font-bold flex items-center gap-1">
+                          <ChevronRight className="w-3 h-3" /> Luận Giải Chi Tiết
+                        </span>
+                        <p className="text-xs font-medium leading-relaxed">
+                          {evalText}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
 

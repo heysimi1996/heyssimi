@@ -57,6 +57,7 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const [stream, setStream] = React.useState<MediaStream | null>(null);
   const [permissionState, setPermissionState] = React.useState<'prompt' | 'granted' | 'denied' | 'simulated'>('prompt');
+  const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
   const [isScanning, setIsScanning] = React.useState(false);
   const [scanProgress, setScanProgress] = React.useState(0);
   const [scanStage, setScanStage] = React.useState('');
@@ -76,21 +77,80 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
   ]);
 
   // Request camera permission
-  const startCamera = async () => {
+  const startCamera = async (currentFacing: 'user' | 'environment' = facingMode) => {
+    if (typeof window === 'undefined') return;
+
     try {
       setPermissionState('prompt');
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: 400, height: 400 },
-        audio: false
+      
+      // Stop existing stream first to free up hardware resource
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      // Check if browser/environment supports getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn('Camera APIs (getUserMedia) are not supported or blocked in this browser context. Falling back to 3D Simulation.');
+        setPermissionState('simulated');
+        return;
+      }
+
+      // Level 1: Try with ideal resolution and selected facing mode
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: currentFacing },
+            width: { ideal: 640 },
+            height: { ideal: 640 }
+          },
+          audio: false
+        });
+        setStream(mediaStream);
+        setPermissionState('granted');
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+        return;
+      } catch (errLevel1) {
+        console.warn('Level 1 camera constraints failed, trying Level 2 (facingMode only):', errLevel1);
+      }
+
+      // Level 2: Try with facingMode string constraint only (removes resolution restrictions)
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: currentFacing
+          },
+          audio: false
+        });
+        setStream(mediaStream);
+        setPermissionState('granted');
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+        return;
+      } catch (errLevel2) {
+        console.warn('Level 2 camera constraints failed, trying Level 3 (basic video):', errLevel2);
+      }
+
+      // Level 3: Fallback to basic video stream (any default camera)
+      const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
+        video: true, 
+        audio: false 
       });
-      setStream(mediaStream);
+      setStream(fallbackStream);
       setPermissionState('granted');
       if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
+        videoRef.current.srcObject = fallbackStream;
       }
-    } catch (err) {
-      console.warn('Camera permission denied or not supported, falling back to 3D Simulation:', err);
-      setPermissionState('simulated');
+    } catch (err: any) {
+      console.error('All camera connection attempts failed, falling back to 3D Simulation:', err);
+      if (err?.name === 'NotAllowedError' || err?.message?.includes('Permission denied')) {
+        setPermissionState('denied');
+      } else {
+        // For other errors (like hardware not found, or iframe restrictions that throw generic errors), also show denied view with explanation
+        setPermissionState('denied');
+      }
     }
   };
 
@@ -100,6 +160,13 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
     }
+  };
+
+  const toggleFacingMode = () => {
+    const nextFacing = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(nextFacing);
+    triggerVibration(40);
+    startCamera(nextFacing);
   };
 
   // Auto start camera or simulated on mount
@@ -327,7 +394,7 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
         </div>
 
         {/* Scanner Viewframe Container */}
-        <div className="relative flex justify-center items-center py-6">
+        <div className="relative flex flex-col justify-center items-center py-6">
           <div className="relative w-[300px] h-[300px] rounded-full overflow-hidden bg-brand-black/40 border border-white/10 flex items-center justify-center">
             
             {/* Live Camera Feed */}
@@ -337,7 +404,7 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
                 autoPlay
                 playsInline
                 muted
-                className="absolute w-full h-full object-cover scale-x-[-1]"
+                className={`absolute w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : 'scale-x-[1]'}`}
               />
             )}
 
@@ -363,10 +430,28 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
                 <Camera className="w-10 h-10 text-brand-orange/70 animate-bounce" />
                 <p className="text-xs text-white/80">Yêu cầu quyền truy cập Camera để bắt đầu quét trực tiếp cấu trúc diện mạo của bạn</p>
                 <button
-                  onClick={startCamera}
+                  onClick={() => startCamera()}
                   className="bg-brand-orange text-black px-4 py-2 rounded-xl text-xs font-bold font-display uppercase tracking-wider hover:scale-105 transition-all"
                 >
                   Cho phép Camera
+                </button>
+              </div>
+            )}
+
+            {/* Denied / Blocked View */}
+            {permissionState === 'denied' && !isScanning && (
+              <div className="absolute inset-0 bg-brand-black/90 flex flex-col items-center justify-center p-6 text-center z-30 space-y-4">
+                <Camera className="w-8 h-8 text-rose-500/70" />
+                <p className="text-[10px] text-white/80">
+                  Camera không khả dụng hoặc bị chặn quyền truy cập (đặc biệt khi mở từ Zalo/Facebook).
+                  <br/><br/>
+                  <span className="text-brand-orange">Vui lòng cấp quyền Camera hoặc mở trang web này bằng Safari/Chrome để sử dụng.</span>
+                </p>
+                <button
+                  onClick={() => setPermissionState('simulated')}
+                  className="bg-white/10 text-white px-3 py-1.5 rounded-lg border border-white/20 text-[10px] font-bold font-display uppercase hover:bg-white/20 transition-all mt-2 cursor-pointer"
+                >
+                  Tiếp tục với 3D Mô phỏng
                 </button>
               </div>
             )}
@@ -381,6 +466,20 @@ export function FaceScanner({ onScanComplete, onBack }: FaceScannerProps) {
               </div>
             )}
           </div>
+
+          {/* Floating Toggle Camera Source */}
+          {permissionState === 'granted' && !isScanning && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleFacingMode}
+              className="mt-4 z-30 bg-brand-black/80 hover:bg-brand-black border border-brand-orange/30 hover:border-brand-orange text-brand-orange px-4 py-2 rounded-xl shadow-lg backdrop-blur-sm cursor-pointer flex items-center gap-2 text-[11px] font-display font-semibold uppercase tracking-wider transition-all"
+              title="Đổi Camera Trước/Sau"
+            >
+              <RefreshCw className="w-3.5 h-3.5 animate-spin-slow" />
+              <span>Đổi Camera ({facingMode === 'user' ? 'Trước' : 'Sau'})</span>
+            </motion.button>
+          )}
 
           {/* Glowing corners on scanner container */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[320px] h-[320px] pointer-events-none">
